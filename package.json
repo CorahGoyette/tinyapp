@@ -2,24 +2,19 @@
   "name": "tinyapp",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "express_server.js",
   "scripts": {
+    "start": "./node_modules/.bin/nodemon -L express_server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/CorahLighthouse/tinyapp.git"
-  },
-  "keywords": [],
-  "author": "",
+  "author": "[Corah Goyette, corahgoyette@gmail.com]",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/CorahLighthouse/tinyapp/issues"
-  },
-  "homepage": "https://github.com/CorahLighthouse/tinyapp#readme",
   "dependencies": {
-    "body-parser": "^1.19.0",
-    "ejs": "^2.7.1",
-    "express": "^4.17.1"
+    "body-parser": "^1.18.3",
+    "ejs": "^2.6.1",
+    "express": "^4.16.3"
+  },
+  "devDependencies": {
+    "nodemon": "^1.17.5"
   }
 }
