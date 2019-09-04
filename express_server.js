@@ -2,6 +2,15 @@ const express = require("express");
 const app = express();
 const PORT = 8080;
 
+const bodyParser = require('body-parser')
+
+const cookieParser = require ("cookie-parser")
+app.use(cookieParser())
+
+
+app.use(bodyParser.urlencoded({ extended: false })); 
+const cookieSession = require('cookie-session');
+
 app.set("view engine", "ejs");
 
 const urlDatabase = {
@@ -9,17 +18,45 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-const bodyParser = require("body-parser");
-app.use(bodyParser.urlencoded({extended: true}));
-
-// app.post("/urls/:id", (req, res) => {
-//   res.redirect('/urls');
-// })
-
 app.post("/urls/:shortURL/delete", (req, res) => {
   delete urlDatabase[req.params.shortURL];
   res.redirect('/urls');
 })
+
+app.get("/", (req, res) => {
+  res.render("index");
+});
+
+app.post("/login", (req, res) => {
+  res.cookie("username", "hello");
+  res.render("/");
+})  
+
+app.use(cookieSession({
+  name: 'user_id',
+  keys: ['id']
+}));
+
+app.get("/", (req, res) => {
+  const templateVars = { user: undefined };
+  templateVars.user = req.session.user_id ? users[req.session.user_id] : undefined;
+  res.render('index', templateVars );
+});
+
+app.post("/login", (req, res) => {
+
+  for (let user in users) {
+    console.log(users[user]);
+    if (users[user].username === req.body.username) {
+      if (users[user].password === req.body.password) {
+        // res.cookie('user_id', user);
+        req.session.user_id = user;
+        break;
+      }
+    }
+  }
+  res.redirect('/');
+});
 
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL];
@@ -60,6 +97,12 @@ app.post("/urls", (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
+});
+
+app.get("urls/login", (req, res) => {
+let templateVars = {
+  username: req.cookies["username"] };
+res.render("urls_index", templateVars);
 });
 
 function generateRandomString() {
