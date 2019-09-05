@@ -8,14 +8,13 @@ app.use(bodyParser.urlencoded({extended: true}));
 const { getUserByEmail } = require("./helpers");
 const bcrypt = require("bcrypt");
 
-app.set("view engine", "ejs");     
-
+app.set("view engine", "ejs");
 
 const cookieSession = require('cookie-session');
 app.use(cookieSession({
   name: 'session',
   keys: ['key1', 'key2']
-}))
+}));
 
 const userDatabase = { 
   "userRandomID": {
@@ -23,7 +22,7 @@ const userDatabase = {
     email: "user@example.com", 
     password: "purple-monkey-dinosaur"
   },
- "user2RandomID": {
+  "user2RandomID": {
     id: "user2RandomID", 
     email: "user2@example.com", 
     password: "dishwasher-funk"
@@ -45,8 +44,8 @@ app.get("/", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  let user_id = req.session.user_id;
-  let templateVars = { urls: urlsForUser(user_id), user : userDatabase[user_id]};
+  let theirUserId = req.session.theirUserId;
+  let templateVars = { urls: urlsForUser(theirUserId), user : userDatabase[theirUserId]};
   res.render("urls_index", templateVars);
 });
 
@@ -66,8 +65,8 @@ app.post("/register", (req, res) => {
   let password = req.body.password.trim();
 
   if (email === "" || password === "") {
-    res.status(400).send('Please make sure your email and password are provided')
-  } else if (getUserByEmail(email, userDatabase) != null) { 
+    res.status(400).send('Please make sure your email and password are provided');
+  } else if (getUserByEmail(email, userDatabase) !== null) { 
     res.status(400).send('Email already exists');
   } else {
 
@@ -87,7 +86,7 @@ app.post("/register", (req, res) => {
     console.log(userDatabase);
 
     //setting cookie containing user's new ID
-    req.session.user_id = randomId;
+    req.session.theirUserId = randomId;
     res.redirect("/urls");
   }
 });
@@ -101,18 +100,18 @@ app.post("/login", (req, res) => {
 
   let user = getUserByEmail(email, userDatabase);
   if (user === null) {
-    res.status(403).send('User not found!')
+    res.status(403).send('User not found!');
   } else if (bcrypt.compareSync(password, user.password) === false) { 
     res.status(403).send('Invalid password!');
   } else {
-    req.session.user_id = user.id;
+    req.session.theirUserId = user.id;
     res.redirect("/urls");
   }
 });  
 
 //process logout route
 app.post("/logout", (req, res) => {
-  req.session.user_id = undefined;
+  req.session.theirUserId = undefined;
   res.redirect("/urls");
 });  
 
@@ -128,13 +127,13 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-  let user_id = req.session.user_id;
-  if (user_id === undefined){
+  let theirUserId = req.session.theirUserId;
+  if (theirUserId === undefined) {
     res.redirect("/urls/login");
   } else {   
-    let templateVars = { urls: urlDatabase, user : userDatabase[user_id]};
+    let templateVars = { urls: urlDatabase, user : userDatabase[theirUserId]};
     res.render("urls_new", templateVars);
-  };
+  }
 });
 
 app.get("/urls.json", (req, res) => {
@@ -142,20 +141,20 @@ app.get("/urls.json", (req, res) => {
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  let user_id = req.session.user_id;
-  if (user_id === undefined){
+  let theirUserId = req.session.theirUserId;
+  if (theirUserId === undefined) {
     res.redirect("/urls/login");
   } else {
-  let templateVars = { shortURL: req.params.shortURL, longURL: req.params.longURL };
-  res.render("urls_show", templateVars);
+    let templateVars = { shortURL: req.params.shortURL, longURL: req.params.longURL };
+    res.render("urls_show", templateVars);
   }
 });
 
 // generating shortURL for the long URL provided using a random string
 app.post("/urls", (req, res) => {
   const shortURL = generateRandomString();
-  let user_id = req.session.user_id;
-  urlDatabase[shortURL] = {longURL:req.body.longURL, userID: user_id};
+  let theirUserId = req.session.theirUserId;
+  urlDatabase[shortURL] = {longURL:req.body.longURL, userID: theirUserId};
   res.redirect(`/urls/${shortURL}`);       
 });
 
@@ -163,29 +162,29 @@ app.post("/urls", (req, res) => {
 // this function generates a random string for ID and short URL
 //==============================================================================
 function generateRandomString() {
-  let randomString = ""
+  let randomString = "";
   const alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvxyz";
   let alphaLength = alpha.length;
 
-    for (let i = 0; i < 6; i ++) {
+  for (let i = 0; i < 6; i ++) {
     randomString += alpha.charAt(Math.floor(Math.random() * alphaLength));
-    }
+  }
   return randomString;
 }
 
 //==============================================================================
 // return longURL created by a particular user
 //==============================================================================
-const urlsForUser = function(id){
+const urlsForUser = function(id) {
   let urls = {};
-  for (let shortUrl in urlDatabase){
+  for (let shortUrl in urlDatabase) {
     let url = urlDatabase[shortUrl];
     if (url.userID === id) {
       urls[shortUrl] = url;
     }
   }
   return urls;
-}
+};
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
