@@ -5,6 +5,8 @@ const bodyParser = require('body-parser');
 
 app.use(bodyParser.urlencoded({extended: true}));
 
+// const { getUserByEmail } = require("./helpers");
+
 // const cookieParser = require('cookie-parser');
 // app.use(cookieParser());
 
@@ -212,33 +214,7 @@ const urlsForUser = function(id){
   return urls;
 }
 
-// app.use(cookieSession({
-//   name: 'user_id',
-//   keys: ['id']
-// }));
-
-// app.get("/", (req, res) => {
-//   const templateVars = { user: undefined };
-//   templateVars.user = req.session.user_id ? users[req.session.user_id] : undefined;
-//   res.render('index', templateVars );
-// });
-
-// app.post("/login", (req, res) => {
-//   for (let user in users) {
-//     console.log(users[user]);
-//     if (users[user].username === req.body.username) {
-//       if (users[user].password === req.body.password) {
-//         req.session.user_id = user;
-//         break;
-//       }
-//     }
-//   }
-//   res.redirect('/');
-// });
-
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
 
-
-/* ** to find users - have to call the user object */
