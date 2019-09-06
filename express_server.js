@@ -161,7 +161,7 @@ app.post("/urls", (req, res) => {
 //==============================================================================
 // this function generates a random string for ID and short URL
 //==============================================================================
-function generateRandomString() {
+const generateRandomString = function() {
   let randomString = "";
   const alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvxyz";
   let alphaLength = alpha.length;
@@ -186,6 +186,23 @@ const urlsForUser = function(id) {
   return urls;
 };
 
+//==============================================================================
+// function that tracks how many times someone has visited the site
+////have to call the visitcounter function still //////==============================================================================
+const VisitCounter = function() {
+  const visits = GetCookie("counter");
+  if (!visits) {visits = 1;
+    document.write("This is your first time here, Welcome!");
+  } else {
+    visits = parseInt(visits) + 1;
+    document.write("You have visited this site " + visits + " times.");
+  } setCookie("counter", visits,expdate);
+}; 
+
+
+
+
+// Displaying we are in the port correctly
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });

@@ -2,14 +2,28 @@
 <html lang="en">
 <html>
   <head>
-     <h1> Register </h1>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+      <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+      <title>Register</title>
+  <!-- Style classes here -->
+    <style>
+        .corah-heading{
+          color:grey;
+        }
+        .corah-padding{
+          margin:10px;
+        }
+        </style>
   </head>  
 <body>	
-      <form method= "POST" action="/register">
-      <input type="email" placeholder="Email" name="email"/>
-      <input type="password" placeholder="Password" name="password"/>
-      <button type="submit">Submit</button>
+    <h1 class="corah-heading corah-padding"> Register </h1>
+    <div class="form-group mb-2">
+      <form class="form-inline" method= "POST" action="/register">
+      <input class="form-control corah-padding" type="email" placeholder="Email" name="email"/>
+      <input class="form-control corah-padding" type="password" placeholder="Password" name="password"/>
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </div>
 </form> 
 </body>
 </html>
-
