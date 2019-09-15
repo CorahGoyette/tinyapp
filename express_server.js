@@ -115,17 +115,29 @@ app.post("/logout", (req, res) => {
   res.redirect("/urls");
 });  
 
+// Delete the URL
 app.post("/urls/:shortURL/delete", (req, res) => {
   delete urlDatabase[req.params.shortURL];
   res.redirect('/urls');
 });
 
+// Edit the URL
+app.put("/urls/:url", (req, res) => {
+  let theirUserId = req.session.theirUserId;
+  if (theirUserId === undefined) {
+    res.redirect("/urls/login");
+  } else {   
+    res.redirect(`/urls/${req.params.shortURL}`); 
+  }
+});
 
+// Open the short URL
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL].longURL;
   res.redirect(longURL);
 });
 
+// Create a new URL
 app.get("/urls/new", (req, res) => {
   let theirUserId = req.session.theirUserId;
   if (theirUserId === undefined) {
