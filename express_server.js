@@ -35,29 +35,60 @@ const urlDatabase = {
 };
 
 //==============================================================================
-// register the routes for my application
+// register the VIEW routes for my application
 //==============================================================================
 
-// register my home routes
+// For the ROOT URL, just redirect to our main page that displays URLS for current user
 app.get("/", (req, res) => {
   res.redirect("/urls");
 });
 
+// Main page - display all the URLs for the current logged in user
 app.get("/urls", (req, res) => {
   let theirUserId = req.session.theirUserId;
   let templateVars = { urls: urlsForUser(theirUserId), user : userDatabase[theirUserId]};
   res.render("urls_index", templateVars);
 });
 
-//route to get the register page
+
+// Route to show the registration page
 app.get("/urls/register", (req, res) => {
   res.render("urls_register");
 });
 
-//route to get the login page
+// Route to show the login page
 app.get("/urls/login", (req, res) => {
   res.render("urls_login");
 });
+
+// Route to show the new URL page
+app.get("/urls/new", (req, res) => {
+  let theirUserId = req.session.theirUserId;
+  if (theirUserId === undefined) {
+    res.redirect("/urls/login");
+  } else {   
+    let templateVars = { urls: urlDatabase, user : userDatabase[theirUserId]};
+    res.render("urls_new", templateVars);
+  }
+});
+
+
+// Route to show the edit form
+app.get("/urls/:shortURL/edit", (req, res) => {
+  let theirUserId = req.session.theirUserId;
+  if (theirUserId === undefined) {
+    res.redirect("/urls/login");
+  } else {
+    let url = urlDatabase[req.params.shortURL];
+    let templateVars = { shortURL: req.params.shortURL, longURL: url.longURL };
+    res.render("urls_show", templateVars);
+  }
+});
+
+
+//==============================================================================
+// register the HANDLER routes for my application
+//==============================================================================
 
 // route to handle the registration request
 app.post("/register", (req, res) => {
@@ -91,7 +122,7 @@ app.post("/register", (req, res) => {
   }
 });
 
-// process login route
+// Route to process login route
 app.post("/login", (req, res) => {
 
   // extract properties from the form body
@@ -109,27 +140,44 @@ app.post("/login", (req, res) => {
   }
 });  
 
-//process logout route
+// Route to process logout route
 app.post("/logout", (req, res) => {
   req.session.theirUserId = undefined;
   res.redirect("/urls");
 });  
 
-// Delete the URL
+
+// Route to CREATE a new URL
+app.post("/urls", (req, res) => {
+  const shortURL = generateRandomString();
+  let theirUserId = req.session.theirUserId;
+  urlDatabase[shortURL] = {longURL:req.body.longURL, userID: theirUserId};
+  res.redirect(`/urls`);       
+});
+
+
+// UPDATE the URL
+app.post("/urls/:shortURL/update", (req, res) => {
+
+  // Extract the updated long URL from the body
+  let longURL = req.body.longURL;
+
+  // Find the record from the URL database for the short url
+  let url = urlDatabase[req.params.shortURL];
+
+  // Update the long URL in our database
+  url.longURL = longURL;
+
+  res.redirect('/urls');
+});
+
+
+// DELETE the URL
 app.post("/urls/:shortURL/delete", (req, res) => {
   delete urlDatabase[req.params.shortURL];
   res.redirect('/urls');
 });
 
-// Edit the URL
-app.put("/urls/:url", (req, res) => {
-  let theirUserId = req.session.theirUserId;
-  if (theirUserId === undefined) {
-    res.redirect("/urls/login");
-  } else {   
-    res.redirect(`/urls/${req.params.shortURL}`); 
-  }
-});
 
 // Open the short URL
 app.get("/u/:shortURL", (req, res) => {
@@ -137,38 +185,12 @@ app.get("/u/:shortURL", (req, res) => {
   res.redirect(longURL);
 });
 
-// Create a new URL
-app.get("/urls/new", (req, res) => {
-  let theirUserId = req.session.theirUserId;
-  if (theirUserId === undefined) {
-    res.redirect("/urls/login");
-  } else {   
-    let templateVars = { urls: urlDatabase, user : userDatabase[theirUserId]};
-    res.render("urls_new", templateVars);
-  }
-});
 
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
-app.get("/urls/:shortURL", (req, res) => {
-  let theirUserId = req.session.theirUserId;
-  if (theirUserId === undefined) {
-    res.redirect("/urls/login");
-  } else {
-    let templateVars = { shortURL: req.params.shortURL, longURL: req.params.longURL };
-    res.render("urls_show", templateVars);
-  }
-});
 
-// generating shortURL for the long URL provided using a random string
-app.post("/urls", (req, res) => {
-  const shortURL = generateRandomString();
-  let theirUserId = req.session.theirUserId;
-  urlDatabase[shortURL] = {longURL:req.body.longURL, userID: theirUserId};
-  res.redirect(`/urls/${shortURL}`);       
-});
 
 //==============================================================================
 // this function generates a random string for ID and short URL

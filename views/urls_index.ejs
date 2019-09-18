@@ -33,8 +33,8 @@
           <tr>
             <td><%= url %></td>
             <td><%= urls[url].longURL %></td>
-            <td><form method="GET" action="/urls/<%= url %>"> <button> Edit </button></form> </td>
-            <td><form method="POST" action="/urls/<%= url %>/delete"> <button> Delete </button></form> </td>
+            <td><form method="GET" action="/urls/<%= url %>/edit"> <button> Edit </button></form> </td>
+            <td><form method="POST" action="/urls/<%= url %>/delete"> <button> Delete</button></form> </td>
           </tr>
         <% } %>
       </tbody>
